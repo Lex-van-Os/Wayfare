@@ -1,9 +1,9 @@
-// src/app.ts
+import "dotenv/config";
 import express from "express";
 import sampleRoute from "./routes/sampleRoute";
+import "mongodb";
 
 const app = express();
-const port = 5000;
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
@@ -11,6 +11,4 @@ app.get("/", (req, res) => {
 
 app.use("/api", sampleRoute);
 
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
-});
+export default app;
