@@ -21,8 +21,9 @@
 
 - TypeScript
 - Nodemon
-- ESlint (does not work correctly at the moment)
-- MongoDB
+- ESlint
+- Envalid
+- MongoDB with Node.JS driver
 
 ## Usage
 
