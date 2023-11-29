@@ -1,11 +1,11 @@
-import app from "./app";
+import app from "./app.ts";
 import { MongoClient, ServerApiVersion } from "mongodb";
-import env from "./util/envValidator";
+import env from "./util/envValidator.ts";
 
 const port = env.PORT;
 const dbUri = env.MONGO_CONNECTION_STRING;
 
-const client = new MongoClient(dbUri, {
+export const client = new MongoClient(dbUri, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
@@ -15,10 +15,29 @@ const client = new MongoClient(dbUri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+
+    const db = client.db();
+    const collectionExists = await db
+      .listCollections({ name: "users" })
+      .hasNext();
+
+    if (!collectionExists) {
+      await db.createCollection("users");
+
+      const usersCollection = db.collection("users");
+      const user = {
+        name: "John Doe",
+        age: 25,
+        email: "johndoe@example.com",
+      };
+
+      await usersCollection.insertOne(user);
+    }
+
+    app.locals.db = client.db();
+
+    await client.db().command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
@@ -26,9 +45,9 @@ async function run() {
     app.listen(port, () => {
       console.log(`Server is running at http://localhost:${port}`);
     });
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
   }
 }
 
