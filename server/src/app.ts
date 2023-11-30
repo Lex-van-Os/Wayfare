@@ -5,6 +5,7 @@ import "mongodb";
 import userRoutes from "./routes/userRoutes.ts";
 
 const app = express();
+app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
