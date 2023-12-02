@@ -1,22 +1,25 @@
 import { client } from "../server.ts";
 import { ObjectId } from "mongodb";
 import { hash, compare } from "bcrypt";
+import { UserInterface } from "../models/user.ts";
 
 /**
  * Retrieves all users from the database.
  * @returns {Promise<any[]>} - Array of users.
  * @throws {Error} - If there is an error retrieving users.
  */
-export async function getAllUsers() {
+
+export async function getAllUsers(): Promise<UserInterface[]> {
   try {
     const db = client.db();
-    const collection = db.collection("users");
+    const collection = db.collection<UserInterface>("users");
+
     const results = await collection.find().toArray();
 
     return results;
   } catch (error) {
     console.error("Error retrieving users:", error);
-    throw error;
+    throw new Error("Failed to retrieve users");
   }
 }
 
@@ -26,11 +29,16 @@ export async function getAllUsers() {
  * @returns {Promise<any>} - The user object.
  * @throws {Error} - If there is an error retrieving the user.
  */
-export async function getUserById(id: string) {
+export async function getUserById(id: string): Promise<UserInterface | null> {
   try {
     const db = client.db();
-    const collection = db.collection("users");
-    const result = await collection.findOne({ _id: new ObjectId(id) });
+    const collection = db.collection<UserInterface>("users");
+    console.log(collection);
+    const result = await collection.findOne<UserInterface>({ _id: new ObjectId(id) });
+
+    if (!result) {
+      throw new Error(`User with id ${id} does not exist`);
+    }
 
     return result;
   } catch (error) {
@@ -45,10 +53,25 @@ export async function getUserById(id: string) {
  * @returns {Promise<any>} - The result of the insertion.
  * @throws {Error} - If there is an error creating the user.
  */
-export async function createUser(user: any) {
+
+export async function createUser(user: UserInterface): Promise<any> {
   try {
     const db = client.db();
-    const collection = db.collection("users");
+    const collection = db.collection<UserInterface>("users");
+
+    // Validate user input
+    if (!user.name || !user.email || !user.password) {
+      throw new Error("Invalid user data");
+    }
+
+    // Check if user with the same email already exists
+    const existingUser = await collection.findOne({ email: user.email });
+    if (existingUser) {
+      throw new Error("User with the same email already exists");
+    }
+
+    console.log("Inserting user");
+    user.password = await hashPassword(user.password);
     const result = await collection.insertOne(user);
 
     return result;
@@ -65,7 +88,7 @@ export async function createUser(user: any) {
  * @returns {Promise<any>} - The result of the update operation.
  * @throws {Error} - If there is an error updating the user.
  */
-export async function updateUser(id: string, updatedUser: any) {
+export async function updateUser(id: string, updatedUser: UserInterface): Promise<any> {
   try {
     const db = client.db();
     const collection = db.collection("users");
@@ -91,7 +114,7 @@ export async function updateUser(id: string, updatedUser: any) {
  * @returns {Promise<any>} - The result of the deletion.
  * @throws {Error} - If there is an error deleting the user.
  */
-export async function deleteUser(id: string) {
+export async function deleteUser(id: string): Promise<any> {
   try {
     const db = client.db();
     const collection = db.collection("users");
@@ -135,7 +158,7 @@ export async function retrieveHashedPassword(hashedPassword: string) {
  * @returns {Promise<string>} - The hashed password.
  * @throws {Error} - If there is an error hashing the password.
  */
-export async function hashPassword(name: string, password: string) {
+export async function hashPassword(password: string) {
   try {
     const saltRounds = 10;
 
