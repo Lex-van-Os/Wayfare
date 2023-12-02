@@ -46,6 +46,10 @@ Upon making use of the application, collections are automatically defined and cr
 
 This project makes use of ESM modules
 
+### Error handling
+
+This project makes use of custom error handling for development. Through the Morgan and the http-errors packages, a custom middleware is defined that is wrapped around the Controller and Service methods. Through definitions in app.ts, middleware is defined and configurable.
+
 ## Used Packages / Dependencies
 
 - TypeScript
@@ -53,6 +57,8 @@ This project makes use of ESM modules
 - ESlint
 - Envalid
 - MongoDB with Node.js driver
+- Morgan
+- http-errors
 
 ## Usage
 
