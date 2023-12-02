@@ -1,7 +1,9 @@
 import * as userService from "../services/userService.ts";
 import { ObjectId } from "mongodb";
+import createHttpError from "http-errors";
+import { NextFunction } from "express";
 
-async function getUsers(req: any, res: any) {
+async function getUsers(req: any, res: any, next: NextFunction) {
   try {
     const result = await userService.getAllUsers();
 
@@ -9,15 +11,14 @@ async function getUsers(req: any, res: any) {
       res.status(200).json(result);
     } else {
       console.log("Empty result");
-      res.status(404).json({ error: "No users found" });
+      throw createHttpError(404, "No users found");
     }
   } catch (error) {
-    console.error("Error retrieving all users:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    next(error);
   }
 }
 
-async function getUser(req: any, res: any) {
+async function getUser(req: any, res: any, next: NextFunction) {
   try {
     const userId = req.params.id;
     const user = await userService.getUserById(userId);
@@ -26,23 +27,21 @@ async function getUser(req: any, res: any) {
       res.status(200).json(user);
     } else {
       console.log("User not found");
-      res.status(404).json({ error: "User not found" });
+      throw createHttpError(404, "User not found");
     }
   } catch (error) {
-    console.error("Error retrieving user:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    next(error);
   }
 }
 
-async function createUser(req: any, res: any) {
+async function createUser(req: any, res: any, next: NextFunction) {
   try {
     const userData = req.body;
     const newUser = await userService.createUser(userData);
 
     res.status(201).json(newUser);
   } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    next(error);
   }
 }
 
@@ -52,14 +51,14 @@ async function createUser(req: any, res: any) {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - A promise that resolves when the user is updated.
  */
-async function updateUser(req: any, res: any) {
+async function updateUser(req: any, res: any, next: NextFunction) {
   try {
     console.log("Update user");
     const userId = req.params.id;
 
     if (!ObjectId.isValid(userId)) {
       console.log("Invalid document id");
-      return res.status(400).json({ error: "Invalid document id" });
+      throw createHttpError(400, "Invalid document id");
     }
 
     const userData = req.body;
@@ -69,15 +68,14 @@ async function updateUser(req: any, res: any) {
       res.status(200).json(updatedUser);
     } else {
       console.log("User not found");
-      res.status(404).json({ error: "User not found" });
+      throw createHttpError(404, "User not found");
     }
   } catch (error) {
-    console.error("Error updating user:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    next(error);
   }
 }
 
-async function deleteUser(req: any, res: any) {
+async function deleteUser(req: any, res: any, next: NextFunction) {
   try {
     const userId = req.params.id;
     const deletedUser = await userService.deleteUser(userId);
@@ -86,11 +84,10 @@ async function deleteUser(req: any, res: any) {
       res.status(200).json(deletedUser);
     } else {
       console.log("User not found");
-      res.status(404).json({ error: "User not found" });
+      throw createHttpError(404, "User not found");
     }
   } catch (error) {
-    console.error("Error deleting user:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    next(error);
   }
 }
 
