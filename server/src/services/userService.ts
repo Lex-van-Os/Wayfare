@@ -1,5 +1,6 @@
 import { client } from "../server.ts";
 import { ObjectId } from "mongodb";
+import { hash, compare } from "bcrypt";
 
 /**
  * Retrieves all users from the database.
@@ -103,6 +104,75 @@ export async function deleteUser(id: string) {
     return result;
   } catch (error) {
     console.error(`Error deleting user with id ${id}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Retrieves the hashed password from the database based on the provided hashed password.
+ * @param {string} hashedPassword - The hashed password to retrieve.
+ * @returns {Promise<any>} - The document containing the hashed password.
+ * @throws {Error} - If there is an error retrieving the hashed password.
+ */
+export async function retrieveHashedPassword(hashedPassword: string) {
+  try {
+    const db = client.db();
+    const collection = db.collection("users");
+
+    const result = await collection.findOne({ password: hashedPassword });
+
+    return result;
+  } catch (error) {
+    console.error("Error retrieving hashed password:", error);
+    throw error;
+  }
+}
+
+/**
+ * Hashes the provided password using bcrypt.
+ * @param {string} name - The name associated with the password.
+ * @param {string} password - The password to be hashed.
+ * @returns {Promise<string>} - The hashed password.
+ * @throws {Error} - If there is an error hashing the password.
+ */
+export async function hashPassword(name: string, password: string) {
+  try {
+    const saltRounds = 10;
+
+    const hashedPassword = await hash(password, saltRounds);
+
+    return hashedPassword;
+  } catch (error) {
+    console.error("Error hashing password:", error);
+    throw error;
+  }
+}
+
+/**
+ * Authenticates a user by comparing the provided password with the hashed password stored in the database.
+ * @param {string} name - The name associated with the password.
+ * @param {string} password - The password to be authenticated.
+ * @returns {Promise<boolean>} - True if the password is a match, false otherwise.
+ * @throws {Error} - If there is an error authenticating the user.
+ */
+export async function authenticateUser(name: string, password: string) {
+  try {
+    const retrievedPasswordDocument = await retrieveHashedPassword(password);
+
+    if (retrievedPasswordDocument) {
+      const retrievedPassword = retrievedPasswordDocument.password;
+      const isPasswordMatch = await compare(password, retrievedPassword);
+
+      if (isPasswordMatch) {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  } catch (error) {
+    console.error("Error authenticating user:", error);
     throw error;
   }
 }

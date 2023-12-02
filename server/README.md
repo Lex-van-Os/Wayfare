@@ -59,6 +59,7 @@ This project makes use of custom error handling for development. Through the Mor
 - MongoDB with Node.js driver
 - Morgan
 - http-errors
+- bcrypt
 
 ## Usage
 
