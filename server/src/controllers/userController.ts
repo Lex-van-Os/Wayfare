@@ -1,13 +1,15 @@
 import * as userService from "../services/userService.ts";
 import { ObjectId } from "mongodb";
 import createHttpError from "http-errors";
-import { NextFunction } from "express";
+import { UserInterface } from "../models/user.ts";
+import { Request, Response, NextFunction } from "express";
 
-async function getUsers(req: any, res: any, next: NextFunction) {
+
+async function getUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const result = await userService.getAllUsers();
 
-    if (result) {
+    if (result.length > 0) {
       res.status(200).json(result);
     } else {
       console.log("Empty result");
@@ -18,7 +20,7 @@ async function getUsers(req: any, res: any, next: NextFunction) {
   }
 }
 
-async function getUser(req: any, res: any, next: NextFunction) {
+async function getUser(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = req.params.id;
     const user = await userService.getUserById(userId);
@@ -34,7 +36,7 @@ async function getUser(req: any, res: any, next: NextFunction) {
   }
 }
 
-async function createUser(req: any, res: any, next: NextFunction) {
+async function createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userData = req.body;
     const newUser = await userService.createUser(userData);
@@ -51,7 +53,7 @@ async function createUser(req: any, res: any, next: NextFunction) {
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - A promise that resolves when the user is updated.
  */
-async function updateUser(req: any, res: any, next: NextFunction) {
+async function updateUser(req: any, res: any, next: NextFunction): Promise<void> {
   try {
     console.log("Update user");
     const userId = req.params.id;
@@ -75,7 +77,7 @@ async function updateUser(req: any, res: any, next: NextFunction) {
   }
 }
 
-async function deleteUser(req: any, res: any, next: NextFunction) {
+async function deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const userId = req.params.id;
     const deletedUser = await userService.deleteUser(userId);
