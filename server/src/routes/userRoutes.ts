@@ -1,5 +1,4 @@
-// userRoutes.ts
-import express from "express";
+import express, { Request, Response } from "express";
 import {
   getUsers,
   getUser,
@@ -24,5 +23,17 @@ router.patch("/:id", updateUser);
 
 // Delete a user
 router.delete("/:id", deleteUser);
+
+// OPTIONS request handling
+router.options("/", handleOptions);
+router.options("/:id", handleOptions);
+
+function handleOptions(req: Request, res: Response) {
+  res.setHeader("Allow", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.sendStatus(200);
+}
 
 export default router;

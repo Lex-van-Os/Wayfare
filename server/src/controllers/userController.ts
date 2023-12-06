@@ -4,8 +4,11 @@ import createHttpError from "http-errors";
 import { UserInterface } from "../models/user.ts";
 import { Request, Response, NextFunction } from "express";
 
-
-async function getUsers(req: Request, res: Response, next: NextFunction): Promise<void> {
+async function getUsers(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   try {
     const result = await userService.getAllUsers();
 
@@ -20,7 +23,11 @@ async function getUsers(req: Request, res: Response, next: NextFunction): Promis
   }
 }
 
-async function getUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+async function getUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   try {
     const userId = req.params.id;
     const user = await userService.getUserById(userId);
@@ -36,9 +43,25 @@ async function getUser(req: Request, res: Response, next: NextFunction): Promise
   }
 }
 
-async function createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+// Ensure that the request body contains the required fields through interface
+async function createUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   try {
-    const userData = req.body;
+    const userData: UserInterface = req.body;
+
+    if (
+      !userData.name ||
+      !userData.email ||
+      !userData.age ||
+      !userData.password
+    ) {
+      console.log("Missing required fields");
+      throw createHttpError(400, "Missing required fields");
+    }
+
     const newUser = await userService.createUser(userData);
 
     res.status(201).json(newUser);
@@ -53,7 +76,11 @@ async function createUser(req: Request, res: Response, next: NextFunction): Prom
  * @param {Object} res - The response object.
  * @returns {Promise<void>} - A promise that resolves when the user is updated.
  */
-async function updateUser(req: any, res: any, next: NextFunction): Promise<void> {
+async function updateUser(
+  req: any,
+  res: any,
+  next: NextFunction
+): Promise<void> {
   try {
     console.log("Update user");
     const userId = req.params.id;
@@ -77,7 +104,11 @@ async function updateUser(req: any, res: any, next: NextFunction): Promise<void>
   }
 }
 
-async function deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+async function deleteUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
   try {
     const userId = req.params.id;
     const deletedUser = await userService.deleteUser(userId);
