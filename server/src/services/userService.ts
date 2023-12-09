@@ -2,19 +2,34 @@ import { client } from "../server.ts";
 import { ObjectId } from "mongodb";
 import { hash, compare } from "bcrypt";
 import { UserInterface } from "../models/user.ts";
+import createPagination from "../util/pagination.ts";
 
 /**
  * Retrieves all users from the database.
+ * @param {number} start - The start index of the current page.
+ * @param {number} limit - The number of users per page.
  * @returns {Promise<any[]>} - Array of users.
  * @throws {Error} - If there is an error retrieving users.
  */
-
-export async function getAllUsers(): Promise<UserInterface[]> {
+export async function getAllUsers(
+  start: number,
+  limit: number,
+): Promise<UserInterface[]> {
   try {
     const db = client.db();
     const collection = db.collection<UserInterface>("users");
 
-    const results = await collection.find().toArray();
+    // Set remaining two necessary paging values
+    const skip = start && limit ? start - 1 : 0;
+    // const total = await collection.countDocuments();
+
+    const results = await collection
+      .find()
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+
+    // const pagination = createPagination(total, start, limit);
 
     return results;
   } catch (error) {
@@ -34,7 +49,9 @@ export async function getUserById(id: string): Promise<UserInterface | null> {
     const db = client.db();
     const collection = db.collection<UserInterface>("users");
     console.log(collection);
-    const result = await collection.findOne<UserInterface>({ _id: new ObjectId(id) });
+    const result = await collection.findOne<UserInterface>({
+      _id: new ObjectId(id),
+    });
 
     if (!result) {
       throw new Error(`User with id ${id} does not exist`);
@@ -44,6 +61,24 @@ export async function getUserById(id: string): Promise<UserInterface | null> {
   } catch (error) {
     console.error(`Error retrieving user with id ${id}:`, error);
     throw error;
+  }
+}
+
+/**
+ * Retrieves the total count of documents in the users collection.
+ * @returns {Promise<number>} - The total count of documents.
+ * @throws {Error} - If there is an error retrieving the count.
+ */
+export async function getTotalUserCount(): Promise<number> {
+  try {
+    const db = client.db();
+    const collection = db.collection("users");
+    const count = await collection.countDocuments();
+
+    return count;
+  } catch (error) {
+    console.error("Error retrieving total user count:", error);
+    throw new Error("Failed to retrieve total user count");
   }
 }
 
@@ -88,7 +123,10 @@ export async function createUser(user: UserInterface): Promise<any> {
  * @returns {Promise<any>} - The result of the update operation.
  * @throws {Error} - If there is an error updating the user.
  */
-export async function updateUser(id: string, updatedUser: UserInterface): Promise<any> {
+export async function updateUser(
+  id: string,
+  updatedUser: UserInterface
+): Promise<any> {
   try {
     const db = client.db();
     const collection = db.collection("users");
