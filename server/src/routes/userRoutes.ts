@@ -10,7 +10,7 @@ import {
 const router = express.Router();
 
 // Get all users
-router.get("/", getUsers);
+router.get("/:start/:limit", getUsers);
 
 // Get a single user
 router.get("/:id", getUser);

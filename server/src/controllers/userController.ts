@@ -3,6 +3,9 @@ import { ObjectId } from "mongodb";
 import createHttpError from "http-errors";
 import { UserInterface } from "../models/user.ts";
 import { Request, Response, NextFunction } from "express";
+import createPagination from "../util/pagination.ts";
+
+const selfUrl = "http://localhost:3000";
 
 async function getUsers(
   req: Request,
@@ -10,10 +13,63 @@ async function getUsers(
   next: NextFunction
 ): Promise<void> {
   try {
-    const result = await userService.getAllUsers();
+    const start = parseInt(req.params.start) || 1;
+    const limit = parseInt(req.params.limit) || 10;
 
-    if (result.length > 0) {
-      res.status(200).json(result);
+    const users = await userService.getAllUsers(start, limit);
+
+    if (users.length > 0) {
+      const total = await userService.getTotalUserCount();
+      const pagination = createPagination(total, start, limit);
+  
+      res.send({
+        items: users.map((user) => ({
+          _id: user._id,
+          name: user.name,
+          age: user.age,
+          email: user.email,
+          password: user.password,
+          _links: {
+            self: {
+              href: `${selfUrl}/api/users/${user._id}`,
+            },
+            collection: {
+              href: `${selfUrl}/api/users`,
+            },
+          },
+        })),
+        _links: {
+          self: {
+            href: `${selfUrl}/api/users`,
+          },
+        },
+        pagination: {
+          currentPage: pagination.currentPage,
+          currentItems: pagination.currentItems,
+          totalPages: pagination.numberOfPages,
+          totalItems: total,
+          _links: {
+            first: {
+              page: 1,
+              href: `${selfUrl}/api/users${pagination.getFirstQueryString}`,
+            },
+            last: {
+              page: pagination.numberOfPages,
+              href: `${selfUrl}/api/users${pagination.getLastQueryString}`,
+            },
+            previous: {
+              page: pagination.currentPage - 1,
+              href: `${selfUrl}/api/users${pagination.getPreviousQueryString}`,
+            },
+            next: {
+              page: pagination.currentPage + 1,
+              href: `${selfUrl}/api/users${pagination.getNextString}`,
+            },
+          },
+        },
+      });
+
+      // res.status(200).json(users);
     } else {
       console.log("Empty result");
       throw createHttpError(404, "No users found");
