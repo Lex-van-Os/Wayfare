@@ -1,15 +1,11 @@
 import app from "./app.ts";
 import { MongoClient, ServerApiVersion } from "mongodb";
-import dotenv from "dotenv";
-// import env from "./util/envValidator.ts";
+import env from "./util/envValidator.ts";
 
-dotenv.config();
-// const port = env.PORT;
-// const dbUri = env.MONGO_CONNECTION_STRING;
-const port = process.env.PORT;
-const dbUri = process.env.MONGO_CONNECTION_STRING;
+const port = env.PORT;
+const dbUri = env.MONGO_CONNECTION_STRING;
 
-export const client = new MongoClient(dbUri ?? '', {
+export const client = new MongoClient(dbUri, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
