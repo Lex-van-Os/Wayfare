@@ -13,6 +13,26 @@ async function getUsers(
   next: NextFunction
 ): Promise<void> {
   try {
+    const acceptHeaders = req.headers.accept;
+
+    const supportedMediaTypes = [
+      "application/json",
+      "text/html",
+      "*/*",
+      "application/x-www-form-urlencoded",
+    ];
+
+    if (!supportedMediaTypes.includes(acceptHeaders || "")) {
+      res
+        .status(406)
+        .send(
+          `Couldn't complete the request, please check your media types. Supported media types: ${supportedMediaTypes.join(
+            ", "
+          )}`
+        );
+      return;
+    }
+
     const start = parseInt(req.params.start) || 1;
     const limit = parseInt(req.params.limit) || 10;
 
@@ -21,7 +41,7 @@ async function getUsers(
     if (users.length > 0) {
       const total = await userService.getTotalUserCount();
       const pagination = createPagination(total, start, limit);
-  
+
       res.send({
         items: users.map((user) => ({
           _id: user._id,
