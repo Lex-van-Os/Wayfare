@@ -21,15 +21,18 @@ app.use(express.json());
 
 // Middleware configuration for enforcing specific content type
 app.use((req, res, next) => {
-  const acceptedContentTypes = ["application/json", "application/x-www-form-urlencoded"];
-  const contentType = req.get("Content-Type");
-  const acceptHeader = req.get("Accept");
-
-  if (!contentType || !acceptHeader || !acceptedContentTypes.includes(contentType) || !acceptedContentTypes.includes(acceptHeader)) {
+  if (
+    req.get("Accept") !== "application/json" &&
+    req.get("Accept") !== "application/x-www-form-urlencoded"
+  ) {
     return res.status(406).send("Not Acceptable");
   }
 
-  if (req.method === "POST" && !acceptedContentTypes.includes(contentType)) {
+  if (
+    req.method === "POST" &&
+    req.get("Content-Type") !== "application/json" &&
+    req.get("Content-Type") !== "application/x-www-form-urlencoded"
+  ) {
     return res.status(415).send("Unsupported Media Type");
   }
 
