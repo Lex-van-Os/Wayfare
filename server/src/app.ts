@@ -5,6 +5,7 @@ import "mongodb";
 import cors from "cors";
 import userRoutes from "./routes/userRoutes.ts";
 import tripRoutes from "./routes/tripRoutes.ts";
+import locationRoutes from "./routes/locationRoutes.ts";
 import createHttpError, { isHttpError } from "http-errors";
 
 const app = express();
@@ -43,6 +44,7 @@ app.use((req, res, next) => {
 
 app.use("/api/users", userRoutes);
 app.use("/api/trips", tripRoutes);
+app.use("/api/locations", locationRoutes);
 
 app.get("/", async (req, res, next) => {
   try {
