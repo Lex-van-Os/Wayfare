@@ -18,21 +18,17 @@ async function run() {
     await client.connect();
 
     const db = client.db();
-    const collectionExists = await db
-      .listCollections({ name: "users" })
-      .hasNext();
+    const collectionsToCreate = ["users", "trips", "locations"];
 
-    if (!collectionExists) {
-      await db.createCollection("users");
+    for (const collectionName of collectionsToCreate) {
+      const collectionExists = await db
+        .listCollections({ name: collectionName })
+        .hasNext();
 
-      const usersCollection = db.collection("users");
-      const user = {
-        name: "John Doe",
-        age: 25,
-        email: "johndoe@example.com",
-      };
-
-      await usersCollection.insertOne(user);
+      if (!collectionExists) {
+        await db.createCollection(collectionName);
+        console.log(`Created collection: ${collectionName}`);
+      }
     }
 
     app.locals.db = client.db();

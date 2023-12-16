@@ -21,7 +21,7 @@ async function getUsers(
     if (users.length > 0) {
       const total = await userService.getTotalUserCount();
       const pagination = createPagination(total, start, limit);
-  
+
       res.send({
         items: users.map((user) => ({
           _id: user._id,
@@ -106,7 +106,7 @@ async function createUser(
   next: NextFunction
 ): Promise<void> {
   try {
-    const userData: UserInterface = req.body;
+    const userData = req.body as UserInterface;
 
     if (
       !userData.name ||
@@ -138,7 +138,6 @@ async function updateUser(
   next: NextFunction
 ): Promise<void> {
   try {
-    console.log("Update user");
     const userId = req.params.id;
 
     if (!ObjectId.isValid(userId)) {
@@ -146,7 +145,7 @@ async function updateUser(
       throw createHttpError(400, "Invalid document id");
     }
 
-    const userData = req.body;
+    const userData: UserInterface = req.body;
     const updatedUser = await userService.updateUser(userId, userData);
 
     if (updatedUser) {
