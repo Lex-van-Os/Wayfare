@@ -1,8 +1,9 @@
-import { client } from "../server.ts";
 import { ObjectId } from "mongodb";
 import { hash, compare } from "bcrypt";
 import { UserInterface } from "../models/user.ts";
-import createPagination from "../util/pagination.ts";
+import { getCollection } from "../util/helpers.ts";
+
+const COLLECTION_NAME = "users";
 
 /**
  * Retrieves all users from the database.
@@ -13,21 +14,16 @@ import createPagination from "../util/pagination.ts";
  */
 export async function getAllUsers(
   start: number,
-  limit: number,
+  limit: number
 ): Promise<UserInterface[]> {
   try {
-    const db = client.db();
-    const collection = db.collection<UserInterface>("users");
+    const collection = await getCollection<UserInterface>(COLLECTION_NAME);
 
     // Set remaining two necessary paging values
     const skip = start && limit ? start - 1 : 0;
     // const total = await collection.countDocuments();
 
-    const results = await collection
-      .find()
-      .skip(skip)
-      .limit(limit)
-      .toArray();
+    const results = await collection.find().skip(skip).limit(limit).toArray();
 
     // const pagination = createPagination(total, start, limit);
 
@@ -46,9 +42,8 @@ export async function getAllUsers(
  */
 export async function getUserById(id: string): Promise<UserInterface | null> {
   try {
-    const db = client.db();
-    const collection = db.collection<UserInterface>("users");
-    console.log(collection);
+    const collection = await getCollection<UserInterface>(COLLECTION_NAME);
+
     const result = await collection.findOne<UserInterface>({
       _id: new ObjectId(id),
     });
@@ -71,8 +66,8 @@ export async function getUserById(id: string): Promise<UserInterface | null> {
  */
 export async function getTotalUserCount(): Promise<number> {
   try {
-    const db = client.db();
-    const collection = db.collection("users");
+    const collection = await getCollection(COLLECTION_NAME);
+
     const count = await collection.countDocuments();
 
     return count;
@@ -91,8 +86,7 @@ export async function getTotalUserCount(): Promise<number> {
 
 export async function createUser(user: UserInterface): Promise<any> {
   try {
-    const db = client.db();
-    const collection = db.collection<UserInterface>("users");
+    const collection = await getCollection<UserInterface>(COLLECTION_NAME);
 
     // Validate user input
     if (!user.name || !user.email || !user.password) {
@@ -128,8 +122,8 @@ export async function updateUser(
   updatedUser: UserInterface
 ): Promise<any> {
   try {
-    const db = client.db();
-    const collection = db.collection("users");
+    const collection = await getCollection(COLLECTION_NAME);
+
     const result = await collection.updateOne(
       { _id: new ObjectId(id) },
       { $set: updatedUser }
@@ -154,8 +148,8 @@ export async function updateUser(
  */
 export async function deleteUser(id: string): Promise<any> {
   try {
-    const db = client.db();
-    const collection = db.collection("users");
+    const collection = await getCollection(COLLECTION_NAME);
+
     const result = await collection.deleteOne({ _id: new ObjectId(id) });
 
     if (result.deletedCount === 0) {
@@ -177,8 +171,7 @@ export async function deleteUser(id: string): Promise<any> {
  */
 export async function retrieveHashedPassword(hashedPassword: string) {
   try {
-    const db = client.db();
-    const collection = db.collection("users");
+    const collection = await getCollection(COLLECTION_NAME);
 
     const result = await collection.findOne({ password: hashedPassword });
 

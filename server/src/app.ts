@@ -4,6 +4,7 @@ import morgan from "morgan";
 import "mongodb";
 import cors from "cors";
 import userRoutes from "./routes/userRoutes.ts";
+import tripRoutes from "./routes/tripRoutes.ts";
 import createHttpError, { isHttpError } from "http-errors";
 
 const app = express();
@@ -41,6 +42,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/users", userRoutes);
+app.use("/api/trips", tripRoutes);
 
 app.get("/", async (req, res, next) => {
   try {
@@ -70,6 +72,8 @@ app.use(
     if (isHttpError(error)) {
       errorMessage = error.message;
       statusCode = error.statusCode;
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
     }
 
     res.status(statusCode).json({ error: errorMessage });
