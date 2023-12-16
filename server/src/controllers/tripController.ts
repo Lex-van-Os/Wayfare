@@ -130,6 +130,7 @@ async function updateTrip(
     }
 
     const tripData: TripInterface = req.body;
+    console.log(tripData);
     const updatedTrip = await tripService.updateTrip(tripId, tripData);
 
     if (updatedTrip) {
