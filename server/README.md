@@ -61,6 +61,7 @@ This project makes use of custom error handling for development. Through the Mor
 - http-errors
 - bcrypt
 - cors
+- joi
 
 ## Usage
 
