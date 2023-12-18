@@ -7,6 +7,8 @@ import userRoutes from "./routes/userRoutes.ts";
 import tripRoutes from "./routes/tripRoutes.ts";
 import locationRoutes from "./routes/locationRoutes.ts";
 import createHttpError, { isHttpError } from "http-errors";
+import swaggerJsDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
 
 const app = express();
 
@@ -20,6 +22,25 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(morgan("dev"));
 app.use(express.json());
+
+const swaggerOptions: swaggerJsDoc.Options = {
+  swaggerDefinition: {
+    info: {
+      title: "Trip Planner API",
+      description: "Trip Planner API Information",
+      contact: {
+        name: "Amazing Developer",
+      },
+      servers: ["http://localhost:5000"],
+      version: "1.0.0", // Add the missing version property
+    },
+  },
+  apis: ["./src/routes/*.ts"],
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 // Middleware configuration for enforcing specific content type
 app.use((req, res, next) => {
