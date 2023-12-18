@@ -108,16 +108,6 @@ async function createUser(
   try {
     const userData = req.body as UserInterface;
 
-    if (
-      !userData.name ||
-      !userData.email ||
-      !userData.age ||
-      !userData.password
-    ) {
-      console.log("Missing required fields");
-      throw createHttpError(400, "Missing required fields");
-    }
-
     const newUser = await userService.createUser(userData);
 
     res.status(201).json(newUser);

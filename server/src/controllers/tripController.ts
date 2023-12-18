@@ -3,6 +3,7 @@ import createHttpError from "http-errors";
 import { TripInterface, tripFilters } from "../models/trip.ts";
 import * as tripService from "../services/tripService.ts";
 import { ObjectId } from "mongodb";
+import { createFilterModel } from "../util/helpers.ts";
 
 /**
  * Get all trips with optional pagination and filtering.
@@ -19,17 +20,8 @@ async function getTrips(
   try {
     // Extract the optional query parameters from the request. Else: default value
     const { page = 1, limit = 10 } = req.query;
-
     // Extract the optional filter values from the request. Filters are used as .include() functionality.
-    const filters = Object.keys(req.query)
-      .filter((key) => tripFilters.includes(key))
-      .reduce(
-        (obj, key) => {
-          obj[key] = { $regex: req.query[key], $options: "i" };
-          return obj;
-        },
-        {} as Record<string, any>
-      );
+    const filters = createFilterModel(req.query);
 
     const trips = await tripService.getAllTrips(
       Number(page),
@@ -90,17 +82,6 @@ async function createTrip(
   try {
     const tripData = req.body as TripInterface;
 
-    if (
-      !tripData.title ||
-      !tripData.description ||
-      !tripData.startDate ||
-      !tripData.endDate ||
-      !tripData.userId
-    ) {
-      console.log("Missing required fields");
-      throw createHttpError(400, "Missing required fields");
-    }
-
     const newTrip = await tripService.createTrip(tripData);
 
     res.status(201).json(newTrip);
@@ -130,7 +111,6 @@ async function updateTrip(
     }
 
     const tripData: TripInterface = req.body;
-    console.log(tripData);
     const updatedTrip = await tripService.updateTrip(tripId, tripData);
 
     if (updatedTrip) {

@@ -6,6 +6,13 @@ import {
   updateUser,
   deleteUser,
 } from "../controllers/userController.ts";
+import {
+  validateUserCreate,
+  validateUserUpdate,
+  validateUserPagination,
+} from "../middleware/userMiddleware.ts";
+
+import { validatePathId } from "../middleware/sharedMiddleware.ts";
 
 const router = express.Router();
 
@@ -13,16 +20,16 @@ const router = express.Router();
 router.get("/:start/:limit", getUsers);
 
 // Get a single user
-router.get("/:id", getUser);
+router.get("/:id", validatePathId, getUser);
 
 // Create a new user
-router.post("/", createUser);
+router.post("/", validateUserCreate, createUser);
 
 // Update a user
-router.patch("/:id", updateUser);
+router.patch("/:id", validatePathId, validateUserUpdate, updateUser);
 
 // Delete a user
-router.delete("/:id", deleteUser);
+router.delete("/:id", validatePathId, deleteUser);
 
 // OPTIONS request handling
 router.options("/", handleOptions);

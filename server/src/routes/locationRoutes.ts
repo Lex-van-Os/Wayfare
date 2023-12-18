@@ -6,22 +6,29 @@ import {
   updateLocation,
   deleteLocation,
 } from "../controllers/locationController.ts";
+import {
+  validateLocationCreate,
+  validateLocationUpdate,
+  validateLocationPagination,
+} from "../middleware/locationMiddleware.ts";
+
+import { validatePathId } from "../middleware/sharedMiddleware.ts";
 
 const router = express.Router();
 
 // Get all locations
-router.get("", getLocations);
+router.get("", validateLocationPagination, getLocations);
 
 // Get a single location
-router.get("/:id", getLocation);
+router.get("/:id", validatePathId, getLocation);
 
 // Create a new location
-router.post("/", createLocation);
+router.post("/", validateLocationCreate, createLocation);
 
 // Update a location
-router.patch("/:id", updateLocation);
+router.patch("/:id", validatePathId, validateLocationUpdate, updateLocation);
 
 // Delete a location
-router.delete("/:id", deleteLocation);
+router.delete("/:id", validatePathId, deleteLocation);
 
 export default router;

@@ -3,6 +3,7 @@ import createHttpError from "http-errors";
 import { LocationInterface, locationFilters } from "../models/location.ts";
 import * as locationService from "../services/locationService.ts";
 import { ObjectId } from "mongodb";
+import { createFilterModel } from "../util/helpers.ts";
 
 async function getLocations(
   req: Request,
@@ -10,17 +11,10 @@ async function getLocations(
   next: NextFunction
 ): Promise<void> {
   try {
+    // Extract the optional query parameters from the request. Else: default value
     const { page = 1, limit = 10 } = req.query;
-
-    const filters = Object.keys(req.query)
-      .filter((key) => locationFilters.includes(key))
-      .reduce(
-        (obj, key) => {
-          obj[key] = { $regex: req.query[key], $options: "i" };
-          return obj;
-        },
-        {} as Record<string, any>
-      );
+    // Extract the optional filter values from the request. Filters are used as .include() functionality.
+    const filters = createFilterModel(req.query);
 
     const locations = await locationService.getAllLocations(
       Number(page),
@@ -66,18 +60,6 @@ async function createLocation(
 ): Promise<void> {
   try {
     const locationData = req.body as LocationInterface;
-
-    if (
-      !locationData.name ||
-      !locationData.description ||
-      !locationData.startDate ||
-      !locationData.endDate ||
-      !locationData.notes ||
-      !locationData.tripId
-    ) {
-      console.log("Missing required fields");
-      throw createHttpError(400, "Missing required fields");
-    }
 
     const newLocation = await locationService.createLocation(locationData);
 

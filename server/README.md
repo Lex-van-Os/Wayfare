@@ -24,7 +24,7 @@
 
 ### Layout
 
-The server project consists of three main layers: routes, controllers, and services.
+The server project consists of three main layers: routes, controllers, and services. Besides this, there is also a middleware layer, mainly used for validation.
 
 **Routes**
 
@@ -37,6 +37,9 @@ Through the defined collection routes, collection-specific controller methods ar
 **Services**
 
 The service layer handles communication with the MongoDB database. Using the defined database configuration (done in `server.ts`), the necessary collection CRUD actions are performed.
+
+**Middleware**
+Through middleware, validation for pieces of functionality on the collections is defined. This validation is done through the joi package, and the creation of validation schema's + functions. Through defining validation logic in the routing, validation is effectively done before entering the controller methods. There is also middleware for general application wide functionality.
 
 ### Collections
 
@@ -61,6 +64,7 @@ This project makes use of custom error handling for development. Through the Mor
 - http-errors
 - bcrypt
 - cors
+- joi
 
 ## Usage
 
