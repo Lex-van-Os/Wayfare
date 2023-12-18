@@ -65,6 +65,7 @@ This project makes use of custom error handling for development. Through the Mor
 - bcrypt
 - cors
 - joi
+- Swagger UI
 
 ## Usage
 

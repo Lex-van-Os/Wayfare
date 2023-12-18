@@ -16,19 +16,99 @@ import { validatePathId } from "../middleware/sharedMiddleware.ts";
 
 const router = express.Router();
 
-// Get all trips
+/**
+ * @swagger
+ * /api/trips:
+ *   get:
+ *     summary: Get all trips
+ *     responses:
+ *       200:
+ *         description: Returns all trips
+ */
 router.get("", validateTripPagination, getTrips);
 
-// Get a single trip
+/**
+ * @swagger
+ * /api/trips/{id}:
+ *   get:
+ *     summary: Get a single trip
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Returns the trip with the specified id
+ *       404:
+ *         description: Trip not found
+ */
 router.get("/:id", validatePathId, getTrip);
 
-// Create a new trip
+/**
+ * @swagger
+ * /api/trips:
+ *   post:
+ *     summary: Create a new trip
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Trip'
+ *     responses:
+ *       201:
+ *         description: Trip created successfully
+ *       400:
+ *         description: Invalid request body
+ */
 router.post("/", validateTripCreate, createTrip);
 
-// Update a trip
+/**
+ * @swagger
+ * /api/trips/{id}:
+ *   patch:
+ *     summary: Update a trip
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Trip'
+ *     responses:
+ *       200:
+ *         description: Trip updated successfully
+ *       400:
+ *         description: Invalid request body
+ *       404:
+ *         description: Trip not found
+ */
 router.patch("/:id", validatePathId, validateTripUpdate, updateTrip);
 
-// Delete a trip
+/**
+ * @swagger
+ * /api/trips/{id}:
+ *   delete:
+ *     summary: Delete a trip
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: Trip deleted successfully
+ *       404:
+ *         description: Trip not found
+ */
 router.delete("/:id", validatePathId, deleteTrip);
 
 export default router;
