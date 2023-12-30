@@ -2,7 +2,7 @@
 
 setlocal enabledelayedexpansion
 
-set PORT=8080
+set PORT=8070
 
 set "command=netstat -ano | findstr :%PORT%"
 for /f "usebackq tokens=5" %%a in (`!command!`) do (

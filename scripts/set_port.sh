@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PORT=8080
+PORT=8070
 
 if ss -tln | grep -q ":$PORT\b"; then
     echo "Port $PORT is already in use. Using port 8090 instead."
