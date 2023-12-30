@@ -19,6 +19,9 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "nodemon src/server.ts",
+    "start:lb_example:unix": "../scripts/set_port.sh",
+    "start:lb_example:win": "..\\scripts\\set_port.bat",
+    "start:lb_example": "npm run start:lb_example:unix || npm run start:lb_example:win",
     "lint": "eslint . --ext .ts ."
   },
   "devDependencies": {

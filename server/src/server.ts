@@ -2,7 +2,7 @@ import app from "./app.ts";
 import { MongoClient, ServerApiVersion } from "mongodb";
 import env from "./util/envValidator.ts";
 
-const port = env.PORT;
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 const dbUri = env.MONGO_CONNECTION_STRING;
 
 export const client = new MongoClient(dbUri, {
