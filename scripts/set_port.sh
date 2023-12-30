@@ -10,3 +10,5 @@ fi
 export PORT
 
 NODE_OPTIONS="--require ts-node/register" nodemon src/server.ts
+
+chmod +x "$0"
